@@ -1,6 +1,7 @@
 #! /usr/bin/python
 ## RGB color conversion scrpit
 
+import signal
 import sys
 
 class colors :
@@ -9,8 +10,13 @@ class colors :
     WHT="\033[38;2;255;255;255m"
     RST="\033[0m"
 
+def interrupt_handler(sig, frame):
+    print("\nExiting...")
+    exit(0)
+signal.signal(signal.SIGINT, interrupt_handler)
+
 if len(sys.argv)==1 :
-    inpt=input("\nEnter the color value that you want to convert > ")
+    inpt=input("Enter the color value that you want to convert > ")
 else :
     inpt=sys.argv[1]
 if (inpt=="-h") | (inpt=="--help") :
