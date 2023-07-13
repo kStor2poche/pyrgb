@@ -3,49 +3,36 @@
 
 from Xlib.display import Display
 from Xlib.ext import xinput
+import Xlib
 from PIL import ImageGrab
+from time import sleep
 import signal
 import sys
 
 class colors :
-    BLK="\033[38;2;0;0;0m"
-    GRY="\033[38;2;128;128;128m"
-    WHT="\033[38;2;255;255;255m"
-    RST="\033[0m"
+    BLK = "\033[38;2;0;0;0m"
+    GRY = "\033[38;2;128;128;128m"
+    WHT = "\033[38;2;255;255;255m"
+    RST = "\033[0m"
+
+def screencolor_picker():
+    display = Display()
+    root = display.screen().root
+    root.xinput_select_events([(xinput.AllDevices, 
+                                xinput.ButtonPressMask)])
+    # wait for mouse click
+    print("Click on the spot you wan to take a sample from...")
+    event = display.next_event()
+    coord = root.query_pointer()._data
+    x = coord["root_x"]
+    y = coord["root_y"]
+    img = ImageGrab.grab()
+    return str(list(img.getpixel((x,y)))).replace('[','').replace(']','')
 
 def interrupt_handler(sig, frame):
     print("\nExiting...")
     exit(0)
 signal.signal(signal.SIGINT, interrupt_handler)
-
-if len(sys.argv)==1 :
-    inpt=input("Enter the color value that you want to convert > ")
-else :
-    inpt=sys.argv[1]
-    if (inpt=="-h") or (inpt=="--help") :
-        print("Usage : rgb [color]\n\n\
-    Where \"color\" can be any of these three type of data : \n\
-        - A hexadecimal value in the form of \"#hhhhhh\" or \"hhhhhh\"\n\
-        - An array of normalized values in the form of \"d.d,d.d,d.d\"\n\
-        - An array of decimal 8 bit values in the form of \"d,d,d\"\n\n\
-    Note that the arrays can have a dimension different to 3")
-        exit(0)
-    elif (inpt=="-p") or (inpt=="--pick") :
-        inpt=color_picker()
-        exit(0)
-
-if len(inpt)==0 :
-    print("You need to provide a value. See rgb.py -h for the different forms of input accepted.", file=sys.stderr)
-    exit(-1)
-
-def color_picker():
-    display = Display()
-    coord = display.screen().root.query_pointer()._data
-    x = coord["root_x"]
-    y = coord["root_y"]
-    print("x :",x,"y :",y)
-    ImageGrab.grab(None, False, False, "")
-    return 0
 
 ## conversion functions
 #only 3 are needed
@@ -64,6 +51,39 @@ def normtohex(n) :
         htemp = hex(round(n[i]*255))[2:]
         h = h + ("0"+htemp)*(len(htemp)!=2) + (htemp)*(len(htemp)==2) #avoids an if statement
     return h
+
+
+## Main program flow
+if len(sys.argv)==1 :
+    inpt = input("Enter the color value that you want to convert > ")
+else :
+    inpt = sys.argv[1]
+    if (inpt=="-h") or (inpt=="--help") :
+        print("Usage : rgb { -p | (color) }\n\n\
+-p      Pick color from current screen. Following the option with a number\n\
+        will add [number] seconds of delay before user is prompted to choose color.\n\
+(color) A color among any of these three types of data : \n\
+    - A hexadecimal value in the form of \"#hhhhhh\" or \"hhhhhh\"\n\
+    - An array of normalized values in the form of \"d.d,d.d,d.d\"\n\
+    - An array of decimal 8 bit values in the form of \"d,d,d\"\n\n\
+Note that the arrays can have a dimension different to 3")
+        exit(0)
+    elif (len(inpt)>=2 and inpt[0:2]=="-p") :
+        delay = "none"
+        if (len(sys.argv) >= 3) :
+            delay = sys.argv[2]
+        elif (len(inpt) > 2) :
+            delay = inpt[2:]
+        if (delay in "0123456789") :
+            print("Waiting ",delay," second","s"*(int(delay)>1)," before accepting for user input...", sep='')
+            sleep(int(delay))
+        inpt = screencolor_picker()
+
+if len(inpt)==0 :
+    print("You need to provide a value. See rgb.py -h for the different forms of input accepted.", file=sys.stderr)
+    exit(-1)
+
+
 
 if "." in inpt :
     #type = norm
