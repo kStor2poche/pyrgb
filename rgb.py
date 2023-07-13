@@ -52,13 +52,13 @@ def normtohex(n) :
 
 if "." in inpt :
     #type = norm
-    print("\nInput identified as normalized values",inpt)
     inpt=inpt.split(",")
     inpt=list(map(float,inpt))
     for i in inpt : 
-    if i > 1. or i < 0. :
-        print("Error : input value",i,"out of range for a normalized decimal color !", file=sys.stderr)
-        exit(1)
+        if i > 1. or i < 0. :
+            print("Error : input value",i,"out of range for a normalized decimal color !", file=sys.stderr)
+            exit(1)
+    print("\nInput identified as normalized values",inpt)
     h=normtohex(inpt)
     bit=hexto8bit(h)
     print(f"\n• Hexadecimal :          #{h}")
@@ -80,13 +80,13 @@ if "." in inpt :
 {colors.RST}\n")
 elif "," in inpt :
     #type = 8bit
-    print("\nInput identified as 8 bit decimal values",inpt)
     inpt=inpt.split(",")
     inpt=list(map(int,inpt))
     for i in inpt : 
         if i > 255 or i < 0 :
             print("Error : input value",i,"out of range for an 8 bit decimal color !", file=sys.stderr)
             exit(1)
+    print("\nInput identified as 8 bit decimal values",inpt)
     n=bit8tonorm(inpt)
     h=normtohex(n)
     print(f"\n• Normalized values : {n}".replace(']','').replace('[',''))
