@@ -28,6 +28,10 @@ Where \"color\" can be any of these three type of data : \n\
 Note that the arrays can have a dimension different to 3")
     exit(0)
 
+if len(inpt)==0 :
+    print("You need to provide a value. See rgb.py -h for the different forms of input accepted.", file=sys.stderr)
+    exit(-1)
+
 ## conversion functions
 #only 3 are needed
 def hexto8bit(h) :
@@ -51,6 +55,10 @@ if "." in inpt :
     print("\nInput identified as normalized values",inpt)
     inpt=inpt.split(",")
     inpt=list(map(float,inpt))
+    for i in inpt : 
+    if i > 1. or i < 0. :
+        print("Error : input value",i,"out of range for a normalized decimal color !", file=sys.stderr)
+        exit(1)
     h=normtohex(inpt)
     bit=hexto8bit(h)
     print(f"\n• Hexadecimal :          #{h}")
@@ -75,6 +83,10 @@ elif "," in inpt :
     print("\nInput identified as 8 bit decimal values",inpt)
     inpt=inpt.split(",")
     inpt=list(map(int,inpt))
+    for i in inpt : 
+        if i > 255 or i < 0 :
+            print("Error : input value",i,"out of range for an 8 bit decimal color !", file=sys.stderr)
+            exit(1)
     n=bit8tonorm(inpt)
     h=normtohex(n)
     print(f"\n• Normalized values : {n}".replace(']','').replace('[',''))
@@ -98,6 +110,11 @@ else :
     #type = hex
     if inpt[0]=='#' :
         inpt=inpt[1:]
+    for i in inpt : 
+        if not(i in "0123456789abcdefABCDEF") :
+            print("Error : input value",i,"out of range for a hexadecimal color !", file=sys.stderr)
+            exit(1)
+    inpt=inpt.lower()
     print("\nInput identified as hex value #",inpt,sep='')
     bit=hexto8bit(inpt)
     n=bit8tonorm(bit)
