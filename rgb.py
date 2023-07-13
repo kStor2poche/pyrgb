@@ -34,6 +34,10 @@ else :
         inpt=color_picker()
         exit(0)
 
+if len(inpt)==0 :
+    print("You need to provide a value. See rgb.py -h for the different forms of input accepted.", file=sys.stderr)
+    exit(-1)
+
 def color_picker():
     display = Display()
     coord = display.screen().root.query_pointer()._data
@@ -42,11 +46,6 @@ def color_picker():
     print("x :",x,"y :",y)
     ImageGrab.grab(None, False, False, "")
     return 0
-
-
-if len(inpt)==0 :
-    print("You need to provide a value. See rgb.py -h for the different forms of input accepted.", file=sys.stderr)
-    exit(-1)
 
 ## conversion functions
 #only 3 are needed
