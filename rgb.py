@@ -59,9 +59,13 @@ if len(sys.argv)==1 :
 else :
     inpt = sys.argv[1]
     if (inpt=="-h") or (inpt=="--help") :
-        print("Usage : rgb { -p | (color) }\n\n\
--p      Pick color from current screen. Following the option with a number\n\
+        print("Usage : rgb { -h | -p | (color) }\n\n\
+--help\n\
+-h      Show this help message :)\n\
+\n\
+-p      Pick color from current screen. Appending the option with a number\n\
         will add [number] seconds of delay before user is prompted to choose color.\n\
+\n\
 (color) A color among any of these three types of data : \n\
     - A hexadecimal value in the form of \"#hhhhhh\" or \"hhhhhh\"\n\
     - An array of normalized values in the form of \"d.d,d.d,d.d\"\n\
