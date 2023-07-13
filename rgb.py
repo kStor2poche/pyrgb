@@ -1,6 +1,9 @@
 #! /usr/bin/python
 ## RGB color conversion scrpit
 
+from Xlib.display import Display
+from Xlib.ext import xinput
+from PIL import ImageGrab
 import signal
 import sys
 
@@ -19,14 +22,27 @@ if len(sys.argv)==1 :
     inpt=input("Enter the color value that you want to convert > ")
 else :
     inpt=sys.argv[1]
-if (inpt=="-h") | (inpt=="--help") :
-    print("Usage : rgb [color]\n\n\
-Where \"color\" can be any of these three type of data : \n\
-    - A hexadecimal value in the form of \"#hhhhhh\" or \"hhhhhh\"\n\
-    - An array of normalized values in the form of \"d.d,d.d,d.d\"\n\
-    - An array of decimal 8 bit values in the form of \"d,d,d\"\n\n\
-Note that the arrays can have a dimension different to 3")
-    exit(0)
+    if (inpt=="-h") or (inpt=="--help") :
+        print("Usage : rgb [color]\n\n\
+    Where \"color\" can be any of these three type of data : \n\
+        - A hexadecimal value in the form of \"#hhhhhh\" or \"hhhhhh\"\n\
+        - An array of normalized values in the form of \"d.d,d.d,d.d\"\n\
+        - An array of decimal 8 bit values in the form of \"d,d,d\"\n\n\
+    Note that the arrays can have a dimension different to 3")
+        exit(0)
+    elif (inpt=="-p") or (inpt=="--pick") :
+        inpt=color_picker()
+        exit(0)
+
+def color_picker():
+    display = Display()
+    coord = display.screen().root.query_pointer()._data
+    x = coord["root_x"]
+    y = coord["root_y"]
+    print("x :",x,"y :",y)
+    ImageGrab.grab(None, False, False, "")
+    return 0
+
 
 ## conversion functions
 #only 3 are needed
