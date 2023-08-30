@@ -111,7 +111,7 @@ def main():
                 print("Waiting ", int(delay), " second", "s"*(int(delay) > 1),
                       " before accepting for user input...", sep='')
                 sleep(int(delay))
-            else:
+            elif delay != "none":
                 print("Delay\"", delay, "\"invalid.")
             inpt = screencolor_picker()
 
