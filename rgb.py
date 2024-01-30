@@ -1,8 +1,8 @@
 #! /usr/bin/python
 # RGB color conversion scrpit
 
-from Xlib.display import Display
-from Xlib.ext import xinput
+import os;
+
 from PIL import ImageGrab
 from time import sleep
 import signal
@@ -16,14 +16,54 @@ class colors:
     RST = "\033[0m"
 
 
-def screencolor_picker():
+wayland = "WAYLAND_DISPLAY" in os.environ
+
+
+def screencolor_picker_wayland():
+    import dbus
+    from gi.repository import GLib
+    from dbus.mainloop.glib import DBusGMainLoop
+
+    ret = ""
+
+    def response_handler(response, result):
+        nonlocal ret
+        if response != 0:
+            print("Failed to get color")
+        else:
+            res_color = result["color"]
+            ret = str(round(res_color[0], 3))+", "\
+                 +str(round(res_color[1], 3))+", "\
+                 +str(round(res_color[2], 3))
+        loop.quit()
+
+    DBusGMainLoop(set_as_default=True)
+    bus = dbus.SessionBus()
+    con_name = bus.get_connection().get_unique_name()[1:].replace(".", "_")
+    response_path = f"/org/freedesktop/portal/desktop/request/{con_name}/my_token"
+    bus.add_signal_receiver(
+        response_handler,
+        dbus_interface="org.freedesktop.portal.Request",
+        path=response_path,
+    )
+
+    desktop = bus.get_object("org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop")
+    desktop.PickColor("PickColor", {"handle_token": "my_token"}, dbus_interface="org.freedesktop.portal.Screenshot")
+    loop = GLib.MainLoop()
+    loop.run()
+    return ret
+
+
+def screencolor_picker_x11():
+    from Xlib.display import Display
+    from Xlib.ext import xinput
     display = Display()
     root = display.screen().root
     root.xinput_select_events([(xinput.AllDevices,
                                 xinput.ButtonPressMask)])
     # wait for mouse click
     print("Click on the spot you want to take a sample from...")
-    event = display.next_event()
+    _ = display.next_event()
     coord = root.query_pointer()._data
     x = coord["root_x"]
     y = coord["root_y"]
@@ -98,7 +138,7 @@ def main():
     (color) A color among any of these three types of data : \n\
         - A hexadecimal value in the form of \"#hhhhhh\" or \"hhhhhh\"\n\
         - An array of normalized values in the form of \"d.d,d.d,d.d\"\n\
-        - An array of decimal 8 bit values in the form of \"d,d,d\"\n\n\
+        - An array of decimal 8-bit values in the form of \"d,d,d\"\n\n\
     Note that the arrays can have a dimension different to 3")
             exit(0)
         elif (len(inpt) >= 2 and inpt[0:2] == "-p"):
@@ -113,7 +153,10 @@ def main():
                 sleep(int(delay))
             elif delay != "none":
                 print("Delay\"", delay, "\"invalid.")
-            inpt = screencolor_picker()
+            if wayland:
+                inpt = screencolor_picker_wayland()
+            else:
+                inpt = screencolor_picker_x11()
 
     if len(inpt) == 0:
         print("You need to provide a value. See rgb.py -h for the different forms of input accepted.", file=sys.stderr)
@@ -131,7 +174,7 @@ def main():
         h = normtohex(inpt)
         bit = hexto8bit(h)
         print(f"\n• Hexadecimal :          #{h}")
-        print(f"• 8 bit decimal values : {bit}".replace(']', '').replace('[', ''))
+        print(f"• 8-bit decimal values : {bit}".replace(']', '').replace('[', ''))
         print_color_squares(bit)
     elif "," in inpt:
         # type = 8bit
@@ -139,9 +182,9 @@ def main():
         inpt = list(map(int, inpt))
         for i in inpt:
             if i > 255 or i < 0:
-                print("Error : input value", i, "out of range for an 8 bit decimal color !", file=sys.stderr)
+                print("Error : input value", i, "out of range for an 8-bit decimal color !", file=sys.stderr)
                 exit(1)
-        print("\nInput identified as 8 bit decimal values", inpt)
+        print("\nInput identified as 8-bit decimal values", inpt)
         bit = inpt
         n = bit8tonorm(inpt)
         h = normtohex(n)
@@ -160,7 +203,7 @@ def main():
         print("\nInput identified as hex value #",inpt,sep='')
         bit = hexto8bit(inpt)
         n = bit8tonorm(bit)
-        print(f"\n• 8 bit decimal values : {bit}".replace(']', '').replace('[', ''))
+        print(f"\n• 8-bit decimal values : {bit}".replace(']', '').replace('[', ''))
         print(f"• Normalized values :    {n}".replace(']', '').replace('[', ''))
         print_color_squares(bit)
 

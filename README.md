@@ -4,10 +4,10 @@
 ![Illustration of PyRGB in action](./screenshot.png)
 ## Features
 This script can :
-- Convert a color between 8 bit decimal, normalized decimals and hexadecimal formats from text input
+- Convert a color between 8-bit decimal, normalized decimals and hexadecimal formats from text input
 - Show a color picked from a portion of the screen in the aforementioned formats<sup>* </sup>
 - Display the color in neat little blocks if your terminal supports full color !
-> *\* Assuming your window manager runs on an X11 server. Wayland support might be coming in the near future.*
+> *\* Assuming you are on linux window manager runs on an X11 server or Wayland !*
 
 This script can't :
 - Brew cofee
