@@ -19,7 +19,7 @@ class colors:
 wayland = "WAYLAND_DISPLAY" in os.environ
 
 
-def screencolor_picker_wayland():
+def screencolor_picker_wayland() -> str:
     import dbus
     from gi.repository import GLib
     from dbus.mainloop.glib import DBusGMainLoop
@@ -77,24 +77,24 @@ def interrupt_handler(sig, frame):
     exit(0)
 
 
-signal.signal(signal.SIGINT, interrupt_handler)
+_ = signal.signal(signal.SIGINT, interrupt_handler)
 
 # conversion functions
 # (only 3 are needed)
 
 
-def hexto8bit(h):
-    bit = []
+def hexto8bit(h: str) -> list[int]:
+    bit: list[int] = []
     for i in range(len(h)//2):
         bit.append(int(h[0+i*2:2+i*2], 16))
     return bit
 
 
-def bit8tonorm(bit):
+def bit8tonorm(bit: list[int]) -> list[float]:
     return [round(bit[i]/255, 3) for i in range(len(bit))]
 
 
-def normtohex(n):
+def normtohex(n: list[float]) -> str:
     h = ''
     for i in range(len(n)):
         htemp = hex(round(n[i]*255))[2:]
@@ -102,7 +102,7 @@ def normtohex(n):
     return h
 
 
-def print_color_squares(bit):
+def print_color_squares(bit: list[int]):
     if len(bit) >= 3:
         print(f"\n                           \
     {colors.BLK}  🭁████🭌\

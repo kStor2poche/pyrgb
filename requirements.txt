@@ -1,0 +1,8 @@
+pillow
+
+# wayland
+dbus-python
+pygobject
+
+# X11
+xlib
